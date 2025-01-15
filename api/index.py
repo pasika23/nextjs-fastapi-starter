@@ -1,8 +1,24 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 
-### Create FastAPI instance with custom docs and openapi url
-app = FastAPI(docs_url="/api/py/docs", openapi_url="/api/py/openapi.json")
+app = FastAPI()
 
-@app.get("/api/py/helloFastApi")
-def hello_fast_api():
-    return {"message": "Hello from FastAPI"}
+@app.middleware("http")
+async def addcors(request: Request, call_next):
+    response = await call_next(request)
+    response.headers["Access-Control-Allow-Origin"] = "*"
+    response.headers["Access-Control-Allow-Credentials"] = "true"
+    response.headers["Access-Control-Allow-Methods"] = "*"
+    response.headers["Access-Control-Allow-Headers"] = "*"
+    return response
+
+@app.get("/api/python")
+def hello_world():
+    return {"message": "Hello World"}
+
+@app.get("/api/list")
+def liste():
+    return {"liste": ["Apfel", "Banane", "Birne", "Ananas", "Mango", "Orange"]}
+
+@app.get("/api/add")
+def addiere(a: int, b: int):
+    return {"sum": a+b}
