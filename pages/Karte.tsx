@@ -1,68 +1,55 @@
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
+import dynamic from "next/dynamic";
 import L from "leaflet";
-import { MapContainer, TileLayer, GeoJSON, LayersControl } from "react-leaflet";
+import { MapContainer, TileLayer, LayersControl } from "react-leaflet";
+import "leaflet/dist/leaflet.css";
 import { BASE_LAYERS } from "./baseLayers";
+import { LatLngBoundsLiteral } from "leaflet";
 
-const OUTER_BOUNDS: [[number, number], [number, number]] = [
-    [47.2, 8.4],
-    [47.5, 8.7],
+const OUTER_BOUNDS: LatLngBoundsLiteral = [
+    [47.2, 8.4], // Südwestliche Ecke
+    [47.5, 8.7], // Nordöstliche Ecke
 ];
 
-
-
-
-// function Popup({ properties, geometry }) {
-//   const [lon, lat, depth] = geometry.coordinates;
-
-//   return (
-//     <>
-//       <Typography variant="h2">{properties.place}</Typography>
-//       <p>
-//         <span style={{ fontWeight: "bold" }}>MAGNITUDE</span>: {properties.mag}
-//         <br />
-//         <span style={{ fontWeight: "bold" }}>DEPTH</span>: {depth} km
-//         <br />
-//         <span style={{ fontWeight: "bold" }}>TYPE</span>: {properties.type}
-//         <br />
-//         <span style={{ fontWeight: "bold" }}>Lon/Lat</span>: {lon}, {lat}
-//       </p>
-//       <Typography variant="h3">
-//         <Link variant="h3" target="_blank" href={properties.url}>
-//           More info
-//         </Link>
-//       </Typography>
-//     </>
-//   );
-// }
-
 function Karte() {
+    const [isClient, setIsClient] = useState(false);
+
+    useEffect(() => {
+        setIsClient(true);
+    }, []);
+
+    if (!isClient) {
+        return null; // Avoid rendering anything during SSR
+    }
+
     return (
-        <div style={styles.pageWrapper}>
-            <div style={styles.mapBox}>
-                <MapContainer
-                    style={styles.map}
-                    center={[47.3769, 8.5417]} // Zentrum von Zürich
-                    zoom={13}
-                    minZoom={10}
-                    maxBounds={OUTER_BOUNDS}
-                    maxBoundsViscosity={1}
-                >
-                    <LayersControl position="topright">
-                        {BASE_LAYERS.map((baseLayer) => (
-                            <LayersControl.BaseLayer
-                                key={baseLayer.url}
-                                checked={baseLayer.checked}
-                                name={baseLayer.name}
-                            >
-                                <TileLayer attribution={baseLayer.attribution} url={baseLayer.url} />
-                            </LayersControl.BaseLayer>
-                        ))}
-                    </LayersControl>
-                </MapContainer>
-            </div>
+        <div style={{ height: "80vh", width: "80%", margin: "0 auto", background: "#f9f9f9" }}>
+            <MapContainer
+                style={{ height: "100%", width: "100%" }}
+                center={[47.3769, 8.5417]} // Zürich Zentrum
+                zoom={13}
+                minZoom={10}
+                maxBounds={OUTER_BOUNDS}
+                maxBoundsViscosity={1}
+            >
+                <LayersControl position="topright">
+                    {BASE_LAYERS.map((baseLayer) => (
+                        <LayersControl.BaseLayer
+                            key={baseLayer.url}
+                            checked={baseLayer.checked}
+                            name={baseLayer.name}
+                        >
+                            <TileLayer attribution={baseLayer.attribution} url={baseLayer.url} />
+                        </LayersControl.BaseLayer>
+                    ))}
+                </LayersControl>
+            </MapContainer>
         </div>
     );
 }
+
+
+
 
 // CSS-in-JS styles
 const styles = {

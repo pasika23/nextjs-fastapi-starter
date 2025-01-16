@@ -2,7 +2,8 @@ import React, { useState, useEffect } from "react";
 import { AppBar, Toolbar, Button } from '@mui/material';
 import FruchtListe from './fruchtliste';
 import Addiere from './addiere';
-import Karte from './Karte';
+import dynamic from "next/dynamic";
+const Karte = dynamic(() => import("./Karte"), { ssr: false });
 
 export default function Index() {
 
