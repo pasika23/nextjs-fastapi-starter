@@ -29,7 +29,7 @@ export default function Index() {
         {tab === 'tab1' && (<><h1>Inhalt Tab 1</h1></>)}
         {tab === 'tab2' && (<><h1><FruchtListe /></h1></>)}
         {tab === 'tab3' && (<><h1><Addiere /></h1></>)}
-        {tab === 'tab4' && (<><h1><Karte /></h1></>)}
+        {/* {tab === 'tab4' && (<><h1><Karte /></h1></>)} */}
 
     </>)
 }
