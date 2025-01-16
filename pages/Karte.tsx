@@ -3,10 +3,11 @@ import L from "leaflet";
 import { MapContainer, TileLayer, GeoJSON, LayersControl } from "react-leaflet";
 import { BASE_LAYERS } from "./baseLayers";
 
-const OUTER_BOUNDS = [
-    [47.2, 8.4], 
-    [47.5, 8.7], 
+const OUTER_BOUNDS: [[number, number], [number, number]] = [
+    [47.2, 8.4],
+    [47.5, 8.7],
 ];
+
 
 
 
