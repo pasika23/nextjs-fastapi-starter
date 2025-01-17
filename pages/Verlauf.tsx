@@ -1,116 +1,124 @@
 import React, { useState } from "react";
-import { Container, Paper, Typography, FormControl, InputLabel, Select, MenuItem, Button, Grid, Box } from "@mui/material";
-import { VegaLite } from "react-vega";
+import {
+    Container,
+    Paper,
+    Typography,
+    FormControl,
+    InputLabel,
+    Select,
+    MenuItem,
+    Button,
+    Box,
+} from "@mui/material";
 import axios from "axios";
+import { VegaLite, VisualizationSpec } from "react-vega";
+
+type MeteorologicalEntry = {
+    Datum: number;
+    RainDur?: number;
+    T?: number;
+    T_max_h1?: number;
+    p?: number;
+};
 
 const locations = ["Zch_Rosengartenstrasse", "Zch_Schimmelstrasse", "Zch_Stampfenbachstrasse"];
-const parameters = [
-    { value: "RainDur", label: "Regendauer" },
-    { value: "T", label: "Durchschnittstemperatur" },
-    { value: "T_max_h1", label: "Höchsttemperatur" },
-    { value: "p", label: "Luftdruck" },
+const metrics = [
+    { key: "RainDur", label: "Regendauer" },
+    { key: "T", label: "Temperatur" },
+    { key: "T_max_h1", label: "Maximale Temperatur" },
+    { key: "p", label: "Luftdruck" },
 ];
 
 const Verlauf = () => {
-    const [ort, setOrt] = useState("");
-    const [parameter, setParameter] = useState("");
-    const [data, setData] = useState([]);
+    const [location, setLocation] = useState("");
+    const [metric, setMetric] = useState("");
+    const [chartData, setChartData] = useState<VisualizationSpec | null>(null);
 
-    const handleFetch = async () => {
-        if (!ort || !parameter) {
-            alert("Bitte alle Dropdowns ausfüllen!");
+    const fetchData = async () => {
+        if (!location || !metric) {
+            alert("Bitte Standort und Metrik auswählen!");
             return;
         }
 
         try {
-            const response = await axios.post("http://127.0.0.1:8000/api/verlauf", {
-                ort,
-                parameter,
+            const response = await axios.post<MeteorologicalEntry[]>("http://127.0.0.1:8000/api/filter", {
+                location,
+                metric,
             });
-            if (response.data.error) {
-                alert(`Fehler: ${response.data.error}`);
-                return;
+
+            console.log("API Response:", response.data); // Debugging
+
+            // Check if response is an array
+            if (!Array.isArray(response.data)) {
+                throw new Error("Unerwartete API-Antwort");
             }
-            setData(response.data);
+
+            const data = response.data.map((entry) => ({
+                date: new Date(entry.Datum).toLocaleDateString("de-DE"),
+                value: entry[metric as keyof MeteorologicalEntry],
+            }));
+
+            const vegaData: VisualizationSpec = {
+                data: { values: data },
+                mark: "line",
+                encoding: {
+                    x: { field: "date", type: "ordinal", title: "Datum" },
+                    y: { field: "value", type: "quantitative", title: metrics.find((m) => m.key === metric)?.label },
+                },
+            };
+
+            setChartData(vegaData);
         } catch (error) {
+            console.error("Fehler beim Abrufen der Daten:", error);
             if (error instanceof Error) {
-                console.error("Fehler beim Abrufen der Daten:", error.message);
-                alert(`Fehlerdetails: ${error.message}`);
+                alert(`Fehler: ${error.message}`);
             } else {
-                console.error("Unbekannter Fehler:", error);
                 alert("Ein unbekannter Fehler ist aufgetreten.");
             }
         }
     };
 
-    const spec = {
-        $schema: "https://vega.github.io/schema/vega-lite/v5.json",
-        width: "container",
-        height: 400,
-        mark: "line",
-        encoding: {
-            x: { field: "Datum", type: "temporal", title: "Datum" },
-            y: { field: parameter, type: "quantitative", title: parameters.find(p => p.value === parameter)?.label || parameter },
-        },
-        data: { values: data },
-    };
-
     return (
         <Container
             maxWidth="md"
-            style={{ display: "flex", justifyContent: "center", alignItems: "center", height: "80vh" }}
+            style={{ display: "flex", justifyContent: "center", alignItems: "center", height: "100vh" }}
         >
             <Paper elevation={3} style={{ padding: "30px", width: "100%" }}>
                 <Typography variant="h5" align="center" gutterBottom>
-                    Verlauf der Meteodaten
+                    Meteorologischer Verlauf
                 </Typography>
 
-                <Grid container spacing={3}>
-                    {/* Location Dropdown */}
-                    <Grid item xs={12}>
-                        <FormControl fullWidth>
-                            <InputLabel>Ort</InputLabel>
-                            <Select value={ort} onChange={(e) => setOrt(e.target.value)}>
-                                {locations.map((loc) => (
-                                    <MenuItem key={loc} value={loc}>
-                                        {loc}
-                                    </MenuItem>
-                                ))}
-                            </Select>
-                        </FormControl>
-                    </Grid>
+                <FormControl fullWidth margin="normal">
+                    <InputLabel>Standort</InputLabel>
+                    <Select value={location} onChange={(e) => setLocation(e.target.value)}>
+                        {locations.map((loc) => (
+                            <MenuItem key={loc} value={loc}>
+                                {loc}
+                            </MenuItem>
+                        ))}
+                    </Select>
+                </FormControl>
 
-                    {/* Parameter Dropdown */}
-                    <Grid item xs={12}>
-                        <FormControl fullWidth>
-                            <InputLabel>Meteowert</InputLabel>
-                            <Select value={parameter} onChange={(e) => setParameter(e.target.value)}>
-                                {parameters.map((param) => (
-                                    <MenuItem key={param.value} value={param.value}>
-                                        {param.label}
-                                    </MenuItem>
-                                ))}
-                            </Select>
-                        </FormControl>
-                    </Grid>
+                <FormControl fullWidth margin="normal">
+                    <InputLabel>Meteorologischer Wert</InputLabel>
+                    <Select value={metric} onChange={(e) => setMetric(e.target.value)}>
+                        {metrics.map((m) => (
+                            <MenuItem key={m.key} value={m.key}>
+                                {m.label}
+                            </MenuItem>
+                        ))}
+                    </Select>
+                </FormControl>
 
-                    {/* Fetch Button */}
-                    <Grid item xs={12}>
-                        <Box textAlign="center">
-                            <Button variant="contained" color="primary" onClick={handleFetch}>
-                                Daten abrufen
-                            </Button>
-                        </Box>
-                    </Grid>
-                </Grid>
+                <Box textAlign="center" marginTop={3}>
+                    <Button variant="contained" color="primary" onClick={fetchData}>
+                        Verlauf anzeigen
+                    </Button>
+                </Box>
 
-                {/* Visualization */}
-                {data.length > 0 && (
-                    <Box mt={4}>
-                        <Typography variant="h6" align="center" gutterBottom>
-                            {parameters.find(p => p.value === parameter)?.label || parameter}verlauf für {ort}
-                        </Typography>
-                        <VegaLite spec={spec} />
+                {chartData && (
+                    <Box marginTop={4}>
+                        <VegaLite spec={chartData} />
                     </Box>
                 )}
             </Paper>

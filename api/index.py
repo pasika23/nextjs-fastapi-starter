@@ -48,37 +48,34 @@ async def daten(request: DataRequest):
     except Exception as e:
         return {"error": str(e)}
 
-@app.post("/api/verlauf")
-async def verlauf(request: Request):
+@app.post("/api/filter")
+async def filter_data(request: Request):
+    payload = await request.json()
+    location = payload.get("location")
+    metric = payload.get("metric")
+
+    file_path = os.path.join(os.path.dirname(__file__), "..", "data", "meteodaten_2023_daily.json")
+
     try:
-        # Parse the JSON body
-        body = await request.json()
-        ort = body.get("ort")
-        parameter = body.get("parameter")
+        # Lade die Daten
+        with open(file_path, "r") as file:
+            data = json.load(file)
 
-        if not ort or not parameter:
-            return {"error": "Ort und Parameter müssen angegeben werden."}
+        # Filtere die Daten nach Standort
+        filtered_data = [entry for entry in data if entry["Standort"] == location]
 
-        # Load data from JSON file
-        file_path = os.path.join(os.path.dirname(__file__), "..", "data", "meteodaten_2023_daily.json")
-        with open(file_path, "r") as f:
-            data = json.load(f)
-
-        # Filter data
-        filtered_data = [
-            {parameter: record.get(parameter), "Datum": record.get("Datum")}
-            for record in data
-            if record.get("Standort") == ort
+        # Extrahiere nur das angeforderte Feld
+        result = [
+            {key: entry[key] for key in ["Datum", metric]} for entry in filtered_data
         ]
 
-        if not filtered_data:
-            return {"error": f"Keine Daten gefunden für {ort} mit {parameter}"}
 
-        return filtered_data
+        return result
     except Exception as e:
         return {"error": str(e)}
 
 
+
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run(app, host="127.0.0.0", port=8000)
+    uvicorn.run(app, host="127.0.0.1", port=8000)

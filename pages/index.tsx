@@ -16,21 +16,22 @@ export default function Index() {
                     Home
                 </Button>
                 <Button color="inherit" onClick={() => setTab('tab2')}>
-                    Karte
-                </Button>
-                <Button color="inherit" onClick={() => setTab('tab3')}>
                     Tageswert
                 </Button>
-                <Button color="inherit" onClick={() => setTab('tab4')}>
+                <Button color="inherit" onClick={() => setTab('tab3')}>
                     Verlauf
+                </Button>
+                <Button color="inherit" onClick={() => setTab('tab4')}>
+                    Karte
                 </Button>
             </Toolbar>
 
         </AppBar>
         {tab === 'tab1' && (<><h1>Inhalt Tab 1</h1></>)}
-        {tab === 'tab2' && (<><h1><Karte /></h1></>)}
-        {tab === 'tab3' && (<><h1><Tageswert /></h1></>)}
-        {tab === 'tab4' && (<><h1><Verlauf /></h1></>)}
+        {tab === 'tab2' && (<><h1><Tageswert /></h1></>)}
+        {tab === 'tab3' && (<><h1><Verlauf /></h1></>)}
+        {tab === 'tab4' && (<><h1><Karte /></h1></>)}
+
 
     </>)
 }
