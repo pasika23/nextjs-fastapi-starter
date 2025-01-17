@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from "react";
 import { AppBar, Toolbar, Button } from '@mui/material';
-import FruchtListe from './fruchtliste';
-import Addiere from './addiere';
 import dynamic from "next/dynamic";
 const Karte = dynamic(() => import("./Karte"), { ssr: false });
+import Tageswert from "./Tageswert";
+import Verlauf from "./Verlauf";
 
 export default function Index() {
 
@@ -16,21 +16,21 @@ export default function Index() {
                     Home
                 </Button>
                 <Button color="inherit" onClick={() => setTab('tab2')}>
-                    Frucht
+                    Karte
                 </Button>
                 <Button color="inherit" onClick={() => setTab('tab3')}>
-                    Addieren
+                    Tageswert
                 </Button>
                 <Button color="inherit" onClick={() => setTab('tab4')}>
-                    Karte
+                    Verlauf
                 </Button>
             </Toolbar>
 
         </AppBar>
         {tab === 'tab1' && (<><h1>Inhalt Tab 1</h1></>)}
-        {tab === 'tab2' && (<><h1><FruchtListe /></h1></>)}
-        {tab === 'tab3' && (<><h1><Addiere /></h1></>)}
-        {tab === 'tab4' && (<><h1><Karte /></h1></>)}
+        {tab === 'tab2' && (<><h1><Karte /></h1></>)}
+        {tab === 'tab3' && (<><h1><Tageswert /></h1></>)}
+        {tab === 'tab4' && (<><h1><Verlauf /></h1></>)}
 
     </>)
 }

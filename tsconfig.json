@@ -38,7 +38,7 @@
     "pages/addiere.tsx",
     "pages/fruchtliste.tsx",
     "pages/index.tsx",
-    "pages/Karte.jsx"
+    "pages/Karte.tsx"
   ],
   "exclude": [
     "node_modules"
