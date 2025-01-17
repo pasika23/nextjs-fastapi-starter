@@ -17,7 +17,7 @@ import { log } from "console";
 
 const orte = ["Zch_Rosengartenstrasse", "Zch_Schimmelstrasse", "Zch_Stampfenbachstrasse"];
 
-const Tageswert = () => {
+export default function Tageswert() {
   const [ort, setOrt] = useState("");
   const [datum, setDatum] = useState("");
   const [antwort, setAntwort] = useState([]);
@@ -28,21 +28,26 @@ const Tageswert = () => {
       return;
     }
 
-    const zeitpunkt = (new Date(datum).getTime());
+    const zeitpunkt = new Date(datum).getTime();
     console.log(zeitpunkt);
 
     try {
-
       const response = await axios.post("http://127.0.0.1:8000/api/daten", {
         ort,
         zeitpunkt,
       });
       setAntwort(response.data); // response.data ist jetzt ein Array
     } catch (error) {
-      console.error("Fehler beim Abrufen der Daten:", error);
-      alert(`Fehlerdetails: ${error.response?.data?.error || error.message}`);
+      if (error instanceof Error) {
+        console.error("Fehler beim Abrufen der Daten:", error);
+        alert(`Fehlerdetails: ${error.message}`);
+      } else {
+        console.error("Unbekannter Fehler:", error);
+        alert("Ein unbekannter Fehler ist aufgetreten.");
+      }
     }
   };
+
 
   return (
     <Container
@@ -92,7 +97,10 @@ const Tageswert = () => {
             <Box textAlign="center">
               <Button
                 variant="contained"
-                color="primary"
+                sx={{
+                  color: '#111111',
+                  backgroundColor: '#87CEEB'
+                }}
                 onClick={handleSubmit}
               >
                 Suche
@@ -119,4 +127,3 @@ const Tageswert = () => {
   );
 };
 
-export default Tageswert;

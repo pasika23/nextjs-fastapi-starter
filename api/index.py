@@ -6,13 +6,12 @@ from pydantic import BaseModel
 
 app = FastAPI()
 
-# CORS Middleware hinzufügen
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Erlaubt alle Ursprünge, kann spezifisch angepasst werden
+    allow_origins=["*"],
     allow_credentials=True,
-    allow_methods=["*"],  # Erlaubt alle HTTP-Methoden
-    allow_headers=["*"],  # Erlaubt alle Header
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
 class DataRequest(BaseModel):
@@ -56,15 +55,14 @@ async def filter_data(request: Request):
 
     file_path = os.path.join(os.path.dirname(__file__), "..", "data", "meteodaten_2023_daily.json")
 
-    try:
-        # Lade die Daten
+    try:        
         with open(file_path, "r") as file:
             data = json.load(file)
 
-        # Filtere die Daten nach Standort
+        
         filtered_data = [entry for entry in data if entry["Standort"] == location]
 
-        # Extrahiere nur das angeforderte Feld
+       
         result = [
             {key: entry[key] for key in ["Datum", metric]} for entry in filtered_data
         ]

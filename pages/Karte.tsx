@@ -13,7 +13,7 @@ import Overlay from "ol/Overlay";
 
 import { BASE_LAYERS } from "./baseLayers";
 
-function Karte() {
+export default function Karte() {
     const mapElement = useRef<HTMLDivElement | null>(null);
     const popupElement = useRef<HTMLDivElement | null>(null);
     const mapInstance = useRef<Map | null>(null);
@@ -32,15 +32,15 @@ function Karte() {
             const features = [
                 new Feature({
                     geometry: new Point(fromLonLat([8.5261, 47.3952])),
-                    name: "Zürich, Rosengartenstrasse",
+                    name: "Zch_Rosengartenstrasse",
                 }),
                 new Feature({
                     geometry: new Point(fromLonLat([8.5235, 47.371])),
-                    name: "Zürich, Schimmelstrasse",
+                    name: "Zch_Schimmelstrasse",
                 }),
                 new Feature({
                     geometry: new Point(fromLonLat([8.5398, 47.3868])),
-                    name: "Zürich, Stampfenbachstrasse",
+                    name: "Zch_Stampfenbachstrasse",
                 }),
             ];
 
@@ -51,7 +51,7 @@ function Karte() {
                 style: new Style({
                     image: new Icon({
                         src: "https://openlayers.org/en/latest/examples/data/icon.png",
-                        scale: 1.0, // Marker skalieren für deutlich größere Sichtbarkeit
+                        scale: 1.0,
                     }),
                 }),
             });
@@ -120,5 +120,3 @@ function Karte() {
         </div>
     );
 }
-
-export default Karte;

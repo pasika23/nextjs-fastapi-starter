@@ -29,7 +29,7 @@ const metrics = [
     { key: "p", label: "Luftdruck" },
 ];
 
-const Verlauf = () => {
+export default function Verlauf() {
     const [location, setLocation] = useState("");
     const [metric, setMetric] = useState("");
     const [chartData, setChartData] = useState<VisualizationSpec | null>(null);
@@ -46,23 +46,22 @@ const Verlauf = () => {
                 metric,
             });
 
-            console.log("API Response:", response.data); // Debugging
-
-            // Check if response is an array
             if (!Array.isArray(response.data)) {
                 throw new Error("Unerwartete API-Antwort");
             }
 
             const data = response.data.map((entry) => ({
-                date: new Date(entry.Datum).toLocaleDateString("de-DE"),
+                date: new Date(entry.Datum),
                 value: entry[metric as keyof MeteorologicalEntry],
             }));
 
             const vegaData: VisualizationSpec = {
+                width: 600,
+                height: 300,
                 data: { values: data },
                 mark: "line",
                 encoding: {
-                    x: { field: "date", type: "ordinal", title: "Datum" },
+                    x: { field: "date", type: "temporal", title: "Datum" },
                     y: { field: "value", type: "quantitative", title: metrics.find((m) => m.key === metric)?.label },
                 },
             };
@@ -85,7 +84,7 @@ const Verlauf = () => {
         >
             <Paper elevation={3} style={{ padding: "30px", width: "100%" }}>
                 <Typography variant="h5" align="center" gutterBottom>
-                    Meteorologischer Verlauf
+                    Jahresverlauf erstellen
                 </Typography>
 
                 <FormControl fullWidth margin="normal">
@@ -111,8 +110,13 @@ const Verlauf = () => {
                 </FormControl>
 
                 <Box textAlign="center" marginTop={3}>
-                    <Button variant="contained" color="primary" onClick={fetchData}>
-                        Verlauf anzeigen
+                    <Button variant="contained"
+                        sx={{
+                            color: '#111111',
+                            backgroundColor: '#87CEEB'
+                        }}
+                        onClick={fetchData}>
+                        Diagramm laden
                     </Button>
                 </Box>
 
@@ -125,5 +129,3 @@ const Verlauf = () => {
         </Container>
     );
 };
-
-export default Verlauf;
